@@ -1,0 +1,48 @@
+CREATE TABLE Events(id NUM, title STR, location STR)
+CREATE TABLE Locations(name STR, capacity NUM)
+CREATE TABLE Participants(regNo NUM, event STR)
+echo ---INSERTION---
+OPEN TABLE Events
+OPEN TABLE Locations
+OPEN TABLE Participants
+INSERT INTO Events VALUES FROM events.csv
+INSERT INTO Locations VALUES FROM locations.csv
+INSERT INTO Participants VALUES FROM participants.csv
+echo ---JOINING---
+echo ---AUDIPEOPLE---
+SELECT name FROM Locations JOIN Events INTO EventLocations WHERE Locations.name=Events.location
+SELECT * FROM Events JOIN Participants INTO AudiPeopleTemp WHERE Participants.event=Events.title
+OPEN TABLE AudiPeopleTemp
+SELECT regNo, title FROM AudiPeopleTemp INTO AudiPeople WHERE location=Audi
+echo ---MINIEVENTPEOPLE---
+SELECT * FROM Locations INTO LocTemp100 WHERE capacity>100
+OPEN TABLE LocTemp100
+SELECT * FROM LocTemp100 INTO LocTemp200 WHERE capacity<200
+OPEN TABLE LocTemp200
+SELECT * FROM LocTemp200 JOIN Events INTO LocEventTemp WHERE LocTemp200.name=Events.location
+OPEN TABLE LocEventTemp
+SELECT regNo, title FROM LocEventTemp JOIN Participants INTO MiniEventPeople WHERE LocEventTemp.title=Participants.event
+CLOSE TABLE AudiPeopleTemp
+CLOSE TABLE LocEventTemp
+CLOSE TABLE LocTemp100
+CLOSE TABLE LocTemp200
+DROP TABLE AudiPeopleTemp
+DROP TABLE LocTemp100
+DROP TABLE LocTemp200
+DROP TABLE LocEventTemp
+echo
+echo ---Q3---
+CREATE TABLE Organizers(name STR, eventId NUM)
+OPEN TABLE Organizers
+INSERT INTO Organizers VALUES FROM organizers.csv
+SELECT * from Participants JOIN Events INTO POE WHERE Participants.event=Events.title
+OPEN TABLE POE
+SELECT * FROM POE JOIN Organizers INTO POEtemp WHERE POE.id=Organizers.eventId
+OPEN TABLE POEtemp
+SELECT regNo, location, name FROM POEtemp INTO PartOrg
+SELECT regNo, event FROM POEtemp INTO ThomasEvents WHERE name=Thomas
+CLOSE TABLE POE
+CLOSE TABLE POEtemp
+DROP TABLE POE
+DROP TABLE POEtemp
+echo DONE
